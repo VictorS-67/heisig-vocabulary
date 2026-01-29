@@ -58,7 +58,7 @@
     <div class="input-group">
         <label for="chapterInput">Last Completed RTK Chapter:</label>
         <input type="number" id="chapterInput" min="0" max="99" value="10">
-        <div class="note">Enter 0 for Kana-only words. Enter 99 for all words, including those not existing in RTK.</div>
+        <div class="note">Enter 0 for Kana-only words. Enter 99 for all words, including those using kanjis not in RTK.</div>
     </div>
 
     <button id="downloadBtn" onclick="processData()">Download Filtered CSV</button>
@@ -67,7 +67,7 @@
 
 <script>
     // Configuration
-    const CSV_FILENAME = 'jp_freq_translation_reading.csv'; // Must match your filename exactly
+    const CSV_FILENAME = 'jp_freq_translation_reading.csv'; 
 
     function processData() {
         const chapterLimit = parseInt(document.getElementById('chapterInput').value, 10);
@@ -85,23 +85,21 @@
         Papa.parse(CSV_FILENAME, {
             download: true,
             header: true,
-            delimiter: ";", // Important: Your file uses semicolons
+            delimiter: ";",
             skipEmptyLines: true,
             complete: function(results) {
                 if (results.errors.length > 0) {
                     console.error("Errors:", results.errors);
-                    status.textContent = "Error loading CSV file.";
+                    status.textContent = "Error loading CSV file. Check console for details.";
                     btn.disabled = false;
                     return;
                 }
 
                 const allRows = results.data;
                 
-                // Filter rows based on Heisig_chapter
+                // Filter rows
                 const filteredRows = allRows.filter(row => {
-                    // Parse the chapter column as an integer
                     const rowChapter = parseInt(row.Heisig_chapter, 10);
-                    // Check if parsing succeeded and if it's within the user's limit
                     return !isNaN(rowChapter) && rowChapter <= chapterLimit;
                 });
 
@@ -124,28 +122,37 @@
             },
             error: function(err) {
                 console.error("Fetch error:", err);
-                status.textContent = "Could not find the CSV file. Make sure it is in the same folder.";
+                status.textContent = "Could not load the file. Note: This may fail if you open the HTML file directly on your computer due to browser security (CORS). It works best when uploaded to GitHub.";
                 btn.disabled = false;
             }
         });
     }
 
     function downloadCSV(csvString, filename) {
-        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+        // Add BOM (\uFEFF) so Excel opens Japanese characters correctly
+        const blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
+        
+        // Handle IE 10+
+        if (navigator.msSaveBlob) {
+            navigator.msSaveBlob(blob, filename);
+            return;
+        }
+
+        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         
-        // Create a download link
-        if (navigator.msSaveBlob) { // IE 10+
-            navigator.msSaveBlob(blob, filename);
-        } else {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        
+        link.click();
+        
+        // FIX: Add a small delay before removing the link to prevent "File not found" errors
+        setTimeout(() => {
             document.body.removeChild(link);
-        }
+            URL.revokeObjectURL(url);
+        }, 100);
     }
 </script>
 
