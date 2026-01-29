@@ -53,3 +53,17 @@ A dataset focusing specifically on two-kanji compound words (Jukugo).
   - `English Translation`: Meaning.
   - `Heisig_numbers`: List of RTK numbers.
   - `Heisig_chapter`: The RTK chapter required to know the word.
+
+## License & Credits
+
+### The Code
+The source code for this website (HTML, JavaScript, CSS) is licensed under the **MIT License**.
+
+### The Data
+The dataset (`jp_freq_translation_reading.csv`) is a derivative work based on the **Leeds Archive of Japanese Words** via [Manythings.org](https://www.manythings.org/japanese/words/leeds/).
+
+* **Original Data Source:** Distributed under the [Creative Commons Attribution 2.5 Generic License (CC BY 2.5)](https://creativecommons.org/licenses/by/2.5/).
+* **Modifications:** English translations and Heisig (RTK) index numbers were added to the original frequency list.
+* **Heisig/RTK Reference:** The Heisig chapter and frame numbers are factual references to the book *Remembering the Kanji* by James Heisig. This project is not affiliated with, nor endorsed by, James Heisig or the publisher.
+
+You are free to use this modified dataset under the **Creative Commons Attribution 4.0 International (CC BY 4.0)** license.
